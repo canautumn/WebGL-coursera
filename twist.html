@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+
+<!-- START TEMPLATE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- <link rel="icon" href="../../favicon.ico"> -->
+
+    <title>Interactive Computer Graphics (Coursera Course) Assignment 1 Twist and Tessellation</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-slider.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <!-- <link href="css/bootstrap-theme.min.css" rel="stylesheet"> -->
+
+    <!-- Custom styles for this template -->
+    <link href="css/theme.min.css" rel="stylesheet">
+    <link href="css/theme.css" rel="stylesheet">
+
+    <!-- Page specific styles -->
+    <style>
+        .container-canvas {
+            margin: 0 auto;
+            width: 512px;
+        }
+
+        .slider.slider-horizontal {
+            width: 60%;
+        }
+        
+        .slider-handle {
+            background: #2c3e50;
+        }
+        
+        .slider-selection {
+            background: #6c7e90;
+        }
+    </style>
+    
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="js/bootstrap-slider.js"></script>
+    
+    <link href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic' rel='stylesheet' type='text/css'>
+<!-- END TEMPLATE -->
+
+
+
+
+<!-- START WEBGL -->
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+
+void
+main()
+{
+    gl_Position = vPosition;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+void
+main()
+{
+    gl_FragColor = vec4( 0.17, 0.24, 0.32, 1.0 );
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="twist.js"></script>
+<!-- END WEBGL -->
+
+
+
+
+</head>   
+
+<body role="document">
+
+
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">Interactive Computer Graphics</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Twist and Tessellation</a></li>
+            <li><a href="draw.html">Mouse Painting</a></li>
+            <li><a href="cad.html">Geometric CAD</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container" role="main">
+
+
+        <h3 style="padding-bottom: 10px;">Twist and Tessellation <small>Assignment 1</small></h3>
+        
+        <!-- START CONTROLS -->
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <h3 class="panel-title">Options</h3>
+              </div>
+              <div class="panel-body">
+              
+                <div class="row">
+                  <div class="col-md-6">
+                  
+                      Recursive subdivision steps
+                      
+                  </div>
+                  
+                  <div class="col-md-6">
+                      
+                      <div class="row">
+                          &nbsp 0 &nbsp &nbsp
+                          <input id="sliderSubdivision" type="range" data-slider-min="0" data-slider-max="8" data-slider-step="1" data-slider-value="6"/>&nbsp &nbsp 8
+                      </div>
+                      <!-- (For non-bootstrap-slider, use:) <input id="sliderSubdivision" type="range" min="0" max="8" step="1" value="6" /> -->
+
+                  </div>                  
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                  
+                      Twist factor
+                      
+                  </div>
+                  
+                  <div class="col-md-6">
+                      
+                      <div class="row">
+                          &nbsp 0 &nbsp &nbsp
+                          <input id="sliderTwist" type="range" data-slider-min="0" data-slider-max="10" data-slider-step="1" data-slider-value="1"/>&nbsp &nbsp 10
+                      </div>
+                      
+                  </div>        
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                  
+                      Angle
+                      
+                  </div>
+                  
+                  <div class="col-md-6">
+                      
+                      <div class="row">
+                      &nbsp 0&deg &nbsp <input id="sliderAngle" type="range" data-slider-min="0" data-slider-max="360" data-slider-step="1" data-slider-value="0"/>&nbsp &nbsp 360&deg
+                      </div>
+                      
+                  </div>        
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                  
+                      Shape
+                      
+                  </div>
+                  
+                  <div class="col-md-6">
+                      
+                        <form name="formShape">
+                            <label class="radio-inline">
+                                <input type="radio" name="radioShape" value="triangle" checked>Triangle
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="radioShape" value="square">Square
+                            </label>
+                        </form>
+                      
+                  </div>        
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                  
+                      Style
+                      
+                  </div>
+                  
+                  <div class="col-md-6">
+                      
+                        <form name="formStyle">
+                            <label class="radio-inline">
+                                <input type="radio" name="radioStyle" value="solid" checked>Solid
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="radioStyle" value="gasket">Gasket
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="radioStyle" value="wireframe">Wireframe
+                            </label>
+                        </form>
+                      
+                  </div>        
+                </div>
+                
+                
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <h3 class="panel-title">Animation</h3>
+              </div>
+              <div class="panel-body">
+                
+                <div class="row">
+                  <div class="col-md-6 col-xs-6">
+                  
+                    <button id="buttonToggleAnimation" class="btn btn-primary btn-xs">Toggle Animation</button>
+                      
+                  </div>
+                
+                  <div class="col-md-6 col-xs-6">
+                      
+                    <button id="buttonChangeDirection" class="btn btn-primary btn-xs">Change Direction</button>
+                      
+                  </div>        
+                </div>
+                
+                <div class="row">&nbsp</div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                  
+                      Speed
+                      
+                  </div>
+                  
+                  <div class="col-md-6">
+                      
+                      <div class="row">
+                      &nbsp 0.001 &nbsp &nbsp 
+                      <input id="sliderSpeed" type="range" data-slider-min="0.001" data-slider-max="1" data-slider-step="0.001" data-slider-value="0.1"/>
+                      &nbsp &nbsp 1
+                      </div>
+                      
+                      
+                  </div>        
+                </div>
+                
+                
+              </div>
+
+                
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="container-canvas">
+        <canvas id="gl-canvas" width="512" height="512">
+        Oops ... your browser doesn't support the HTML5 canvas element
+        </canvas>
+        </div>
+
+
+        <!-- END CONTROLS -->
+        
+    </div>
+
+<!-- START TEMPLATE -->
+    <!-- <script src="js/bootstrap.min.js"></script> -->
+<!-- END TEMPLATE -->
+
+</body>
+</html>
