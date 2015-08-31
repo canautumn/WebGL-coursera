@@ -24,6 +24,7 @@
  * limitations under the License.
  * ========================================================= */
 
+/** Search GIVE5.ME for the modification for clicking also triggers change event */
 
 /**
  * Bridget makes jQuery widgets

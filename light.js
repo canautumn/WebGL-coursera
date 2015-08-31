@@ -60,14 +60,6 @@ window.onload = function init() {
   program = initShaders(gl, "vertex-shader", "fragment-shader");
   gl.useProgram(program);
 
-  // cBuffer = gl.createBuffer();
-  // gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-  // gl.bufferData(gl.ARRAY_BUFFER, flatten(faceColors), gl.STATIC_DRAW);
-
-  // var vColor = gl.getAttribLocation(program, "vColor");
-  // gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
-  // gl.enableVertexAttribArray(vColor);
-
   vBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
@@ -143,20 +135,13 @@ function initUI() {
 
   for (var i = 0; i < document.formStyle.radioStyle.length; ++i) {
     document.formStyle.radioStyle[i].onclick = function () {
-      // if (this.value == "both") {
-      //   drawFace = 1;
-      //   drawEdge = 1;
-      //   // render();
-      // }
       if (this.value == "face") {
         drawFace = 1;
         drawEdge = 0;
-        // render();
       }
       if (this.value == "edge") {
         drawFace = 0;
         drawEdge = 1;
-        // render();
       }
     }
   }
@@ -177,7 +162,6 @@ function initUI() {
     .on('changeColor.colorpicker',
       function (evt) {
         items[currentItemIndex].ambient = rgbStructToArray(evt.color.toRGB());
-        // updateAllData();
         updateListUI();
       });
   cpkDO = $('#clrDiffuseObject').colorpicker({
@@ -186,7 +170,6 @@ function initUI() {
     .on('changeColor.colorpicker',
       function (evt) {
         items[currentItemIndex].diffuse = rgbStructToArray(evt.color.toRGB());
-        // updateAllData();
         updateListUI();
       });
   cpkSO = $('#clrSpecularObject').colorpicker({
@@ -195,7 +178,6 @@ function initUI() {
     .on('changeColor.colorpicker',
       function (evt) {
         items[currentItemIndex].specular = rgbStructToArray(evt.color.toRGB());
-        // updateAllData();
         updateListUI();
       });
     
@@ -458,14 +440,6 @@ function initUI() {
 // Not an efficient way but easy to implement and sufficient
 function updateAllData() {
   pushItemPoints();
-  // cBuffer = gl.createBuffer();
-  // gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-  // gl.bufferData(gl.ARRAY_BUFFER, flatten(faceColors), gl.STATIC_DRAW);
-
-  // var vColor = gl.getAttribLocation(program, "vColor");
-  // gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
-  // gl.enableVertexAttribArray(vColor);
-
   var vBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
@@ -479,8 +453,6 @@ function updateAllData() {
   gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(vNormal);
 
-
-  // render();
 }
 
 
@@ -623,8 +595,6 @@ function loadFile() {
     alert("Page error: fileinput element not found.");
   } else if (!input.files) {
     alert("`files` property of file inputs is not supported in this browser.");
-  } else if (!input.files[0]) {
-//    alert("Please select a file before clicking 'Load'");
   } else {
     file = input.files[0];
     fr = new FileReader();
@@ -691,14 +661,8 @@ String.prototype.capitalize = function () {
 // push items array into points array
 function pushItemPoints() {
   points = [];
-  // faceColors = [];
-  // edgeColors = [];
   for (var i = 0; i < items.length; ++i) {
     var e = items[i];
-    // var faceRgbColor = hexToRgb(e.faceColor);
-    // var faceColor = vec4(faceRgbColor.r / 255.0, faceRgbColor.g / 255.0, faceRgbColor.b / 255.0, 1.0);
-    // var edgeRgbColor = hexToRgb(e.edgeColor);
-    // var edgeColor = vec4(edgeRgbColor.r / 255.0, edgeRgbColor.g / 255.0, edgeRgbColor.b / 255.0, 1.0);
 
     if (e.type == "sphere") {
       pushSphereData(e.numDivisions);
@@ -748,10 +712,6 @@ function pushSphereData(numDivisions) {
       points.push(p3);
       points.push(p4);
 
-      // for (var iC = 0; iC < 4; iC++) {
-      //   faceColors.push(faceColor);
-      //   edgeColors.push(edgeColor);
-      // }
     }
   }
 }
@@ -789,10 +749,6 @@ function pushCylinderData(numDivisions) {
     points.push(p1d);
     points.push(p2d);
 
-    // for (var iC = 0; iC < 10; ++iC) {
-    //   faceColors.push(faceColor);
-    //   edgeColors.push(edgeColor);
-    // }
   }
 
 }
@@ -820,10 +776,6 @@ function pushConeData(numDivisions) {
     points.push(p2d);
     points.push(p0d);
 
-    // for (var iC = 0; iC < 4; ++iC) {
-    //   faceColors.push(faceColor);
-    //   edgeColors.push(edgeColor);
-    // }
   }
 }
 
@@ -840,28 +792,12 @@ function rgbToHex(r, g, b) {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
-// function rgbArrayToHex(arr) {
-//   return "#" + ((1 << 24) + (arr[0] << 16) + (arr[1] << 8) + arr[2]).toString(16).slice(1);
-// }
-
 function rgbStructToArray(rgb) {
   return [rgb.r / 255.0, rgb.g / 255.0, rgb.b / 255.0, 1.0];
 }
 
 function rgbArrayToHex(rgb) {
   return rgbToHex(Math.floor(rgb[0] * 255.0), Math.floor(rgb[1] * 255.0), Math.floor(rgb[2] * 255.0));
-}
-
-/* invertColor CREDIT: http://stackoverflow.com/a/9601429 */
-function invertColorHex(hexTripletColor) {
-    var color = hexTripletColor;
-    color = color.substring(1);           // remove #
-    color = parseInt(color, 16);          // convert to integer
-    color = 0xFFFFFF ^ color;             // invert three bytes
-    color = color.toString(16);           // convert to hex
-    color = ("000000" + color).slice(-6); // pad with leading zeros
-    color = "#" + color;                  // prepend #
-    return color;
 }
 
 function toInverseMat3(m)
@@ -977,16 +913,6 @@ function loadObjectUniform(e) {
                                                                             multMatVect(cameraMatrix, vec4(pointLightPos[2], 1.0))]));
 }
 
-// function loadVertexAttrib(vbo) {
-//     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-//     var vPosition = gl.getAttribLocation(program, "vPosition");
-//     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, sizeof['vec3'] * 2, 0);
-//     gl.enableVertexAttribArray(vPosition);
-//     var vNormal = gl.getAttribLocation(program, "vNormal");
-//     gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, sizeof['vec3'] * 2, sizeof['vec3']);
-//     gl.enableVertexAttribArray(vNormal);
-// }
-
 function setAnimatedLighting() {
   var pointLightPosOriginal = [lighting.pointLights[0].position, lighting.pointLights[1].position, lighting.pointLights[2].position];
   var sT = [Math.sin(radians(pointLightCurrentTheta[0])), 
@@ -1035,18 +961,13 @@ function render() {
     gl.uniform3fv(translateLoc, [e.tX, e.tY, e.tZ]);
 
 
-    // gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-
-
     if (items[t].type == "sphere") {
       if (drawFace == 1) {
-        // gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(faceColors));
         for (var i = 0; i < numPointsSphere; i += 4) {
           gl.drawArrays(gl.TRIANGLE_FAN, pointsCounter + i, 4);
         }
       }
       if (drawEdge == 1) {
-        // gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(edgeColors));
         for (var i = 0; i < numPointsSphere; i += 4) {
           gl.drawArrays(gl.LINE_STRIP, pointsCounter + i, 4);
         }
@@ -1054,7 +975,6 @@ function render() {
       pointsCounter += numPointsSphere;
     } else if (items[t].type == "cylinder") {
       if (drawFace == 1) {
-        // gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(faceColors));
         for (var i = 0; i < numPointsCylinder; i += 10) {
           gl.drawArrays(gl.TRIANGLE_FAN, pointsCounter + i, 4);
           gl.drawArrays(gl.TRIANGLE_STRIP, pointsCounter + i + 4, 3);
@@ -1062,7 +982,6 @@ function render() {
         }
       }
       if (drawEdge == 1) {
-        // gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(edgeColors));
         for (var i = 0; i < numPointsCylinder; i += 10) {
           gl.drawArrays(gl.LINE_STRIP, pointsCounter + i, 4);
           gl.drawArrays(gl.LINE_STRIP, pointsCounter + i + 4, 3);
@@ -1072,13 +991,11 @@ function render() {
       pointsCounter += numPointsCylinder;
     } else if (items[t].type == "cone") {
       if (drawFace == 1) {
-        // gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(faceColors));
         for (var i = 0; i < numPointsCone; i += 4) {
           gl.drawArrays(gl.TRIANGLE_STRIP, pointsCounter + i, 4);
         }
       }
       if (drawEdge == 1) {
-        // gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(edgeColors));
         for (var i = 0; i < numPointsCone; i += 4) {
           gl.drawArrays(gl.LINE_STRIP, pointsCounter + i, 4);
         }
