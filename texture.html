@@ -12,7 +12,7 @@
   <meta name="author" content="">
   <!-- <link rel="icon" href="../../favicon.ico"> -->
 
-  <title>Interactive Computer Graphics (Coursera Course) Assignment 4 CAD with Lighting</title>
+  <title>Interactive Computer Graphics (Coursera Course) Assignment 5 Texture Mapping to a Sphere</title>
 
   <!-- Bootstrap core CSS -->
   <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -91,6 +91,37 @@
       margin: auto;
       background: url('img/loading.gif') 50% 50% no-repeat rgb(249,249,249);
     }
+/*    .btn-radio {
+      width: 100%;
+    }
+    .img-radio {
+      opacity: 0.5;
+      margin-bottom: 5px;
+    }*/
+    .space-20 {
+      margin-top: 20px;
+    }
+    .space-5 {
+      margin-top: 5px;
+    }
+    .image-radio { /* Hide original radio in label */
+      display:none;
+    }
+    label > input + img { /* Image style in radio */
+      cursor:pointer;
+      border:3px solid transparent;
+    }
+    label > input:checked + img { /* Checked image style */
+      border:3px solid #2c3e50;
+    }
+    label > input + span { /* Image style in radio */
+      cursor:pointer;
+      border:3px solid transparent;
+    }
+    label > input:checked + span { /* Checked image style */
+      border:3px solid #2c3e50;
+    }
+    
   </style>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -113,6 +144,10 @@
   attribute vec4 vPosition;
   attribute vec3 vNormal;
   
+  // texture
+  attribute vec2 vTexCoord;
+  varying vec2 fTexCoord;
+    
   // camera
   // uniform mat4 cameraMatrix;
   uniform mat4 projectionMatrix;
@@ -130,6 +165,8 @@
     // prepare lighting data
     pos = (modelViewMatrix * vPosition).xyz;
     N = normalize(normalMatrix * vNormal.xyz); // norm direction
+    
+    fTexCoord = vTexCoord; // texture
     
   }
   </script>
@@ -159,6 +196,9 @@
   uniform vec4 diffuseObject;
   uniform vec4 specularObject;
   
+  // texture
+  uniform sampler2D texture;
+  varying vec2 fTexCoord;
   
   void
   main()
@@ -189,14 +229,14 @@
       if (isAmbientLightOn != 0) color += ambientLight * ambientObject;
     }
     
-    gl_FragColor = clamp(color, vec4(0, 0, 0, 1), vec4(1, 1, 1, 1));
+    gl_FragColor = clamp(color, vec4(0, 0, 0, 1), vec4(1, 1, 1, 1)) * texture2D(texture, fTexCoord);
   }
   </script>
 
   <script type="text/javascript" src="../Common/webgl-utils.js"></script>
   <script type="text/javascript" src="../Common/initShaders.js"></script>
   <script type="text/javascript" src="../Common/MV.js"></script>
-  <script type="text/javascript" src="light.js"></script>
+  <script type="text/javascript" src="texture.js"></script>
   <!-- END WEBGL -->
 
 
@@ -224,8 +264,8 @@
           <li><a href="twist.html">Twist and Tessellation</a></li>
           <li><a href="draw.html">Mouse Painting</a></li>
           <li><a href="cad.html">Geometric CAD</a></li>
-          <li class="active"><a href="#">CAD with Lighting</a></li>
-          <li><a href="texture.html">Texture Mapping</a></li>
+          <li><a href="light.html">CAD with Lighting</a></li>
+          <li class="active"><a href="#">Texture Mapping</a></li>
         </ul>
       </div>
       <!--/.nav-collapse -->
@@ -238,7 +278,7 @@
     <div class="loading-image"><img src="img/loading.gif" alt="LOADING" height="30" width="30"></div>
   </div>
 
-    <h3 style="padding-bottom: 10px;">CAD with Lighting <small>Assignment 4</small></h3>
+    <h3 style="padding-bottom: 10px;">Texture Mapping to a Sphere <small>Assignment 5</small></h3>
 
     <!-- START CONTROLS -->
 
@@ -247,11 +287,11 @@
       <div class="col-md-3">
         <div class="row">
           <div class="panel panel-primary">
-            <div class="panel-heading" data-toggle="tooltip" data-placement="top" data-original-title="Select one object from the list to edit">
-              <h3 class="panel-title">Objects</h3>
+            <div class="panel-heading" data-toggle="tooltip" data-placement="top" data-original-title="Change Texture, Rotation and Position">
+              <h3 class="panel-title">Sphere</h3>
             </div>
             <div class="panel-body">
-              <div class="row">
+<!--               <div class="row">
                 <div class="col-xs-12">
 
                   <select id="objectlist" class="selectpicker" data-width='100%' size='auto'>
@@ -259,9 +299,9 @@
                   </select>
 
                 </div>
-                <!-- col-xs-7 (object list) -->
-              </div> <!-- row (object list) -->
-              <div class="row">
+ -->                <!-- col-xs-7 (object list) -->
+<!--               </div> --> <!-- row (object list) -->
+<!--               <div class="row">
                 <div class="col-sm-4">
                   <button id="buttonAdd" class="btn btn-primary btn-xs btn-block" data-toggle="tooltip" data-placement="top" data-original-title="Add Object"><span class="glyphicon glyphicon-plus"></span></button>
                 </div>
@@ -271,23 +311,118 @@
                 <div class="col-sm-4">
                   <button id="buttonClear" class="btn btn-primary btn-xs btn-block" data-toggle="tooltip" data-placement="top" data-original-title="Clear Canvas"><span class="glyphicon glyphicon-file"></span></button>
                 </div>            
-              </div>
+              </div> -->
               <!-- row (buttons) -->
 
+              
+              <div class="row space-5">
+                <div class="col-xs-12">
+                  <span class="label label-info">Images</span>
+                </div>
+              </div>
+              <div class="row space-5">
+                <div class="col-xs-4">
+                  <label>
+                    <input class="image-radio" type="radio" name="radioTexture" value="0" checked/>
+                    <img src="img/earth.jpg" alt="Earth" height="70" width="70">
+                  </label>
+                </div>
+                <div class="col-xs-4">
+                  <label>
+                    <input class="image-radio" type="radio" name="radioTexture" value="1" />
+                    <img src="img/tk_moon_1k_color_v001.jpg" alt="Moon" height="70" width="70">
+                  </label>
+                </div>
+                <div class="col-xs-4">
+                  <label>
+                    <input class="image-radio" type="radio" name="radioTexture" value="2" />
+                    <img src="img/Electric-Blue-Marble.jpg" alt="Marble" height="70" width="70">
+                  </label>
+                </div>
+              </div> <!-- row (images) -->
+
+              <div class="row space-5">
+                <div class="col-xs-12">
+                  <span class="label label-info">Regular Patterns</span>
+                </div>
+              </div>
+              <div class="row space-5">
+                <div class="col-xs-4">
+                  <label>
+                    <input class="image-radio" type="radio" name="radioTexture" value="3" />
+                    <img src="img/wood.jpg" alt="Wood" height="70" width="70">
+                  </label>
+                </div>
+                <div class="col-xs-4">
+                  <label>
+                    <input class="image-radio" type="radio" name="radioTexture" value="4" />
+                    <img src="img/brick_pavement.jpg" alt="Bricks" height="70" width="70">
+                  </label>
+                </div>
+                <div class="col-xs-4">
+                  <label>
+                    <input class="image-radio" type="radio" name="radioTexture" value="5" />
+                    <img src="img/yellow_tree.jpg" alt="Trees" height="70" width="70">
+                  </label>
+                </div>
+              </div> <!-- row (images) -->
+
+
+              <div class="row space-5">
+                <div class="col-xs-12">
+                  <span class="label label-info">Checker Board</span>
+                </div>
+              </div>
+              <div class="row space-5">
+                <div class="col-xs-4">
+                  <label style="width:100%;">
+                    <input class="image-radio" type="radio" name="radioTexture" value="6" />
+                    <img id="checker-board-preview" src="http://placehold.it/70x70/35d/fff&text=Checker Board">
+                  </label>
+                </div>
+                <div class="col-xs-8">
+                  <div class="row">
+                    <div class="col-xs-12">
+                      <div id="clrChecker1" class="input-group colorpicker-component colorpicker-element">
+                        <input type="text" value="#ff0000" class="form-control" />
+                        <span class="input-group-addon"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-xs-12">
+                      <div id="clrChecker2" class="input-group colorpicker-component colorpicker-element">
+                        <input type="text" value="#ffffff" class="form-control" />
+                        <span class="input-group-addon"></span>
+                      </div>
+                    </div>                  
+                  </div>
+                </div>
+              </div> <!-- row (images) -->
 
               <div class="row">
-                <div class="col-sm-4">
-                  <button id="buttonSave" class="btn btn-primary btn-xs btn-block" data-toggle="tooltip" data-placement="top" data-original-title="Save Data as JSON"><span class="glyphicon glyphicon-save"></span></button>
+                <div class="col-md-3">
+
+                  <span class="label label-info">Mapping</span>
+
                 </div>
-                <div id="file-selector-container" class="col-sm-4">
-                  <span class="btn btn-primary btn-xs btn-block btn-file" data-toggle="tooltip" data-placement="top" data-original-title="Load Data from JSON"><span class="glyphicon glyphicon-open"></span><input type="file" id="fileinput"></span>
+
+                <div class="col-md-9">
+
+                  <form name="formStyle">
+                    <label class="radio-inline">
+                      <input type="radio" name="radioMapping" value="spherical" checked><span class="label label-default">Spherical</span>
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="radioMapping" value="planar"><span class="label label-default">Planar</span>
+                    </label>
+                  </form>
+
                 </div>
-                <div class="col-sm-4">
-                  <button id="buttonExport" class="btn btn-primary btn-xs btn-block" data-toggle="tooltip" data-placement="top" data-original-title="Export as PNG"><span class="glyphicon glyphicon-share"></span></button>
-                </div>
-              </div> <!-- row (json) -->
-              
-              <div class="row">
+              </div> <!-- row (style) -->
+
+
+              <!-- <div class="row">
                 <div class="col-md-3">
 
                   <span class="label label-info">Style</span>
@@ -306,14 +441,14 @@
                   </form>
 
                 </div>
-              </div> <!-- row (style) -->
+              </div> --> <!-- row (style) -->
 
-            </div>
+            <!-- </div> -->
             <!-- panel-body -->
-            <div id="no-item-display" class="panel-body" style="display :  none;">Add an object to start editing...</div>
-            <div id="has-item-display" class="panel-body">
+            <!-- <div id="no-item-display" class="panel-body" style="display :  none;">Add an object to start editing...</div> -->
+            <!-- <div id="has-item-display" class="panel-body"> -->
 
-              <div class="row">
+<!--               <div class="row">
                 <div class="col-md-1">
 
                   <span class="label label-info">Shape</span>
@@ -335,7 +470,7 @@
                   </form>
 
                 </div>
-              </div><!-- row (shape) --> 
+              </div> --><!-- row (shape) --> 
 
                
                
@@ -358,15 +493,15 @@
                 </div> --><!-- row (color) -->
               
 
-              <div class="row">
+<!--               <div class="row">
                   <div class="col-xs-6">
                       <span class="label label-info">Ambient</span>
                   </div>
                   <div class="col-xs-6">
                       <span class="label label-info">Diffuse</span>
                   </div>
-              </div> <!-- row (color) -->
-              <div class="row">
+              </div> --> <!-- row (color) -->
+<!--               <div class="row">
                   <div class="col-xs-6">
                     <div id="clrAmbientObject" class="input-group colorpicker-component colorpicker-element">
                       <input type="text" value="#86b9ed" class="form-control" />
@@ -380,16 +515,16 @@
                       <span class="input-group-addon"></span>
                     </div>
                   </div>
-              </div> <!-- row (color) -->
-              <div class="row">
+              </div>  --><!-- row (color) -->
+<!--               <div class="row">
                   <div class="col-xs-6">
                       <span class="label label-info">Specular</span>
                   </div>
                   <div class="col-xs-6">
                       <span class="label label-info">Shininess</span>
                   </div>
-              </div> <!-- row (color) -->
-              <div class="row">
+              </div> --> <!-- row (color) -->
+<!--               <div class="row">
                   <div class="col-xs-6">
                     <div id="clrSpecularObject" class="input-group colorpicker-component colorpicker-element">
                       <input type="text" value="#2c3e50" class="form-control" />
@@ -402,16 +537,20 @@
                       <div class="col-xs-4"><small><span id="labelShininess" class="label label-default">30</span></small></div>
                     </div>
                   </div>
-              </div> <!-- row (color) -->
-              <div class="row">
-                <div class="col-xs-6">
-                <span class="label label-info">Affected by Lighting</span>
+              </div> --> <!-- row (color) -->
+
+              <div class="row space-5">
+                <div class="col-md-4">
+                  <span class="label label-info">Repetitive #</span>
                 </div>
-                <div class="col-xs-6">
-                  <input type="checkbox" id="chkReceivingLighting" checked>
+                <div class="col-md-8">
+                  <div class="row">
+                    <div class="col-xs-9"><input id="sliderRP" type="range" data-slider-tooltip="hide" data-slider-min="1" data-slider-max="30" data-slider-step="1" data-slider-value="8" /></div>
+                    <div class="col-xs-3"><small><span id="labelRP" class="label label-default">8</span></small></div>
+                  </div>
                 </div>
               </div>
-              
+
               <div class="row">
                 <div class="col-md-4">
                   <span class="label label-info">Scaling X</span>
@@ -515,7 +654,7 @@
                 </div>
               </div>
 
-              <div class="row">
+<!--               <div class="row">
                 <div class="col-md-4">
                   <span class="label label-info">Divisions</span>
                 </div>
@@ -525,9 +664,20 @@
                     <div class="col-xs-3"><small><span id="labelDV" class="label label-default">0</span></small></div>
                   </div>
                 </div>
-              </div>
+              </div> -->
 
-                
+              <div class="row">
+<!--                 <div class="col-sm-4">
+                  <button id="buttonSave" class="btn btn-primary btn-xs btn-block" data-toggle="tooltip" data-placement="top" data-original-title="Save Data as JSON"><span class="glyphicon glyphicon-save"></span></button>
+                </div>
+                <div id="file-selector-container" class="col-sm-4">
+                  <span class="btn btn-primary btn-xs btn-block btn-file" data-toggle="tooltip" data-placement="top" data-original-title="Load Data from JSON"><span class="glyphicon glyphicon-open"></span><input type="file" id="fileinput"></span>
+                </div> -->
+                <div class="col-sm-12">
+                  <button id="buttonExport" class="btn btn-primary btn-xs btn-block" data-toggle="tooltip" data-placement="top" data-original-title="Export as PNG"><span class="glyphicon glyphicon-share"></span></button>
+                </div>
+              </div> <!-- row (json) -->
+               
               
             </div>
           </div>
@@ -559,12 +709,22 @@
               <h3 class="panel-title">Lighting</h3>
             </div>
             <div class="panel-body">
+            
+              <div class="row">
+                <div class="col-xs-6">
+                <span class="label label-info">Lighting Effect</span>
+                </div>
+                <div class="col-xs-6">
+                  <input type="checkbox" id="chkReceivingLighting" checked>
+                </div>
+              </div>
+              
               <div class="row">
                 <div class="col-xs-6">
                   <span class="label label-info">Ambient Light</span>
                 </div>
                 <div class="col-xs-6">
-                  <span class="label label-info">Color</span>
+                  <input type="checkbox" id="chkAmbient" checked>
                 </div>
               </div>
               
@@ -574,7 +734,7 @@
               
               <div class="row">
                 <div class="col-xs-6">
-                  <input type="checkbox" id="chkAmbient" checked>
+                  <span class="label label-info">Color</span>
                 </div>
                 <div class="col-xs-6">
                   <div id="clrAmbient" class="input-group colorpicker-component colorpicker-element">
@@ -589,13 +749,13 @@
                   <span class="label label-info">Point Lights</span>
                 </div>
                 <div class="col-xs-6">
-                  <span class="label label-info">Selected Light</span>
+                  <select id="lightlist" class="selectpicker" data-width='100%' size='auto'>
+                  </select>
                 </div>
               </div>
               <div class="row">
                 <div class="col-xs-6">
-                  <select id="lightlist" class="selectpicker" data-width='100%' size='auto'>
-                  </select>
+                  <span class="label label-info">Selected Light</span>
                 </div>
                 <div class="col-xs-6">
                   <input type="checkbox" id="chkPoint" checked>
@@ -607,15 +767,15 @@
                   <span class="label label-info">Diffuse Light</span>
                 </div>
                 <div class="col-xs-6">
-                  <span class="label label-info">Specular Light</span>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-xs-6">
                   <div id="clrDiffuse" class="input-group colorpicker-component colorpicker-element">
                     <input type="text" value="#86b9ed" class="form-control" />
                     <span class="input-group-addon"></span>
                   </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xs-6">
+                  <span class="label label-info">Specular Light</span>
                 </div>
                 <div class="col-xs-6">
                   <div id="clrSpecular" class="input-group colorpicker-component colorpicker-element">
@@ -631,7 +791,7 @@
                 </div>
                 <div class="col-md-8">
                   <div class="row">
-                    <div class="col-xs-9"><input id="sliderPX" type="range" data-slider-tooltip="hide" data-slider-min="-1.0" data-slider-max="1.0" data-slider-step="0.01" data-slider-value="0.5" /></div>
+                    <div class="col-xs-9"><input id="sliderPX" type="range" data-slider-tooltip="hide" data-slider-min="-5.0" data-slider-max="5.0" data-slider-step="0.1" data-slider-value="0.5" /></div>
                     <div class="col-xs-3"><small><span id="labelPX" class="label label-default">0.5</span></small></div>
                   </div>
                 </div>
@@ -642,7 +802,7 @@
                 </div>
                 <div class="col-md-8">
                   <div class="row">
-                    <div class="col-xs-9"><input id="sliderPY" type="range" data-slider-tooltip="hide" data-slider-min="-1.0" data-slider-max="1.0" data-slider-step="0.01" data-slider-value="0.5" /></div>
+                    <div class="col-xs-9"><input id="sliderPY" type="range" data-slider-tooltip="hide" data-slider-min="-5.0" data-slider-max="5.0" data-slider-step="0.1" data-slider-value="0.5" /></div>
                     <div class="col-xs-3"><small><span id="labelPY" class="label label-default">0.5</span></small></div>
                   </div>
                 </div>
@@ -653,7 +813,7 @@
                 </div>
                 <div class="col-md-8">
                   <div class="row">
-                    <div class="col-xs-9"><input id="sliderPZ" type="range" data-slider-tooltip="hide" data-slider-min="-1.0" data-slider-max="1.0" data-slider-step="0.01" data-slider-value="0.5" /></div>
+                    <div class="col-xs-9"><input id="sliderPZ" type="range" data-slider-tooltip="hide" data-slider-min="-5.0" data-slider-max="5.0" data-slider-step="0.1" data-slider-value="0.5" /></div>
                     <div class="col-xs-3"><small><span id="labelPZ" class="label label-default">0.5</span></small></div>
                   </div>
                 </div>
@@ -695,7 +855,7 @@
             </div>
             <div class="panel-body">
             
-              <div class="row">
+<!--               <div class="row">
                 <div class="col-md-4">
                   <span class="label label-info">Cam. Distance</span>
                 </div>
@@ -706,7 +866,7 @@
                   </div>
                 </div>
               </div>
-
+ -->
               <div class="row">
                 <div class="col-md-4">
                   <span class="label label-info">Cam. Theta</span>
@@ -779,7 +939,7 @@
                 </div>
               </div>
             
-              <div class="row">
+<!--               <div class="row">
                 <div class="col-md-4">
                   <span class="label label-info">Proj. Near</span>
                 </div>
@@ -801,7 +961,7 @@
                     <div class="col-xs-3"><small><span id="labelPA" class="label label-default">-1</span></small></div>
                   </div>
                 </div>
-              </div>
+              </div> -->
             
             
             
